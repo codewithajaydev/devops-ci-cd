@@ -3,18 +3,19 @@ pipeline {
 
     environment {
         DOCKER_IMAGE = "ajaybecse03/devops-cicd"
-        DOCKER_TAG = "latest"
+        DOCKER_TAG = "${BUILD_NUMBER}"   // better than latest
     }
 
     tools {
-        maven 'Maven'   // Make sure Maven is configured in Jenkins
+        maven 'Maven'   // ✅ must match Jenkins tool name
+        jdk '17'        // ✅ optional but recommended
     }
 
     stages {
 
         stage('Clone Code') {
             steps {
-                git 'https://github.com/codewithajaydev/devops-ci-cd.git'
+                git branch: 'main', url: 'https://github.com/codewithajaydev/devops-ci-cd.git'
             }
         }
 
@@ -33,11 +34,13 @@ pipeline {
         stage('Login to DockerHub') {
             steps {
                 withCredentials([usernamePassword(
-                    credentialsId: 'docker-creds',   // 🔥 create this in Jenkins
+                    credentialsId: 'docker-creds',
                     usernameVariable: 'DOCKER_USER',
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
-                    sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
+                    sh '''
+                    echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+                    '''
                 }
             }
         }
@@ -48,10 +51,20 @@ pipeline {
             }
         }
 
+        stage('Update K8s Deployment Image') {
+            steps {
+                sh '''
+                sed -i "s|image: .*|image: $DOCKER_IMAGE:$DOCKER_TAG|g" deployment.yaml
+                '''
+            }
+        }
+
         stage('Deploy to Kubernetes') {
             steps {
-                sh 'kubectl apply -f deployment.yaml'
-                sh 'kubectl apply -f service.yaml'
+                sh '''
+                kubectl apply -f deployment.yaml
+                kubectl apply -f service.yaml
+                '''
             }
         }
     }
