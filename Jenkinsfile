@@ -62,10 +62,6 @@ pipeline {
 
         stage('Deploy to Kubernetes') {
             steps {
-                powershell '''
-                minikube start --driver=docker
-                Start-Sleep -Seconds 5
-                '''
                 bat '''
                 kubectl apply -f deployment.yaml --validate=false
                 kubectl apply -f service.yaml --validate=false
