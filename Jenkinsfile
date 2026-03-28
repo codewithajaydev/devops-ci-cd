@@ -21,13 +21,13 @@ pipeline {
 
         stage('Build JAR') {
             steps {
-                sh 'mvn clean package -DskipTests'
+                bat 'mvn clean package -DskipTests'
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t $DOCKER_IMAGE:$DOCKER_TAG .'
+                bat 'docker build -t $DOCKER_IMAGE:$DOCKER_TAG .'
             }
         }
 
@@ -38,7 +38,7 @@ pipeline {
                     usernameVariable: 'DOCKER_USER',
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
-                    sh '''
+                    bat '''
                     echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
                     '''
                 }
@@ -47,13 +47,13 @@ pipeline {
 
         stage('Push Docker Image') {
             steps {
-                sh 'docker push $DOCKER_IMAGE:$DOCKER_TAG'
+                bat 'docker push $DOCKER_IMAGE:$DOCKER_TAG'
             }
         }
 
         stage('Update Deployment Image') {
             steps {
-                sh '''
+                bat '''
                 sed -i "s|image: .*|image: $DOCKER_IMAGE:$DOCKER_TAG|g" deployment.yaml
                 '''
             }
@@ -61,7 +61,7 @@ pipeline {
 
         stage('Deploy to Kubernetes') {
             steps {
-                sh '''
+                bat '''
                 kubectl apply -f deployment.yaml
                 kubectl apply -f service.yaml
                 '''
