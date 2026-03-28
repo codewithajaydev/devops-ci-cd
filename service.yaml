@@ -3,10 +3,10 @@ kind: Service
 metadata:
   name: devops-service
 spec:
-  type: LoadBalancer
+  type: NodePort   # 🔥 better for Minikube
   selector:
     app: devops-app
   ports:
     - port: 80
-      targetPort: 3000
-
+      targetPort: 8080   # ✅ FIXED
+      nodePort: 30007    # optional

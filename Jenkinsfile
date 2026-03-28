@@ -1,24 +1,50 @@
 pipeline {
     agent any
 
+    environment {
+        DOCKER_IMAGE = "ajaybecse03/devops-cicd"
+        DOCKER_TAG = "latest"
+    }
+
+    tools {
+        maven 'Maven'   // Make sure Maven is configured in Jenkins
+    }
+
     stages {
 
         stage('Clone Code') {
             steps {
-                git 'https://github.com/yourusername/devops-app.git'
+                git 'https://github.com/codewithajaydev/devops-ci-cd.git'
+            }
+        }
+
+        stage('Build JAR') {
+            steps {
+                sh 'mvn clean package -DskipTests'
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t devops-app .'
+                sh 'docker build -t $DOCKER_IMAGE:$DOCKER_TAG .'
             }
         }
 
-        stage('Push Image') {
+        stage('Login to DockerHub') {
             steps {
-                sh 'docker tag devops-app yourdockerhub/devops-app'
-                sh 'docker push yourdockerhub/devops-app'
+                withCredentials([usernamePassword(
+                    credentialsId: 'docker-creds',   // 🔥 create this in Jenkins
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
+                }
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                sh 'docker push $DOCKER_IMAGE:$DOCKER_TAG'
             }
         }
 
@@ -29,5 +55,13 @@ pipeline {
             }
         }
     }
-}
 
+    post {
+        success {
+            echo '✅ Pipeline executed successfully!'
+        }
+        failure {
+            echo '❌ Pipeline failed. Check logs.'
+        }
+    }
+}
