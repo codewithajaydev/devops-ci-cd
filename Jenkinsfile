@@ -7,7 +7,7 @@ pipeline {
     }
 
     tools {
-        maven 'maven'   // must match Jenkins tool name
+        maven 'Maven'   // must match Jenkins tool name
         jdk '17'
     }
 
