@@ -27,7 +27,7 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                bat 'docker build -t $DOCKER_IMAGE:$DOCKER_TAG .'
+                bat 'docker build -t %DOCKER_IMAGE%:%DOCKER_TAG% .'
             }
         }
 
@@ -39,7 +39,7 @@ pipeline {
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
                     bat '''
-                    echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+                    echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin
                     '''
                 }
             }
@@ -47,14 +47,14 @@ pipeline {
 
         stage('Push Docker Image') {
             steps {
-                bat 'docker push $DOCKER_IMAGE:$DOCKER_TAG'
+                bat 'docker push %DOCKER_IMAGE%:%DOCKER_TAG%'
             }
         }
 
         stage('Update Deployment Image') {
             steps {
-                bat '''
-                sed -i "s|image: .*|image: $DOCKER_IMAGE:$DOCKER_TAG|g" deployment.yaml
+                powershell '''
+                (Get-Content deployment.yaml) -replace 'image: .*', 'image: ${env:DOCKER_IMAGE}:${env:DOCKER_TAG}' | Set-Content deployment.yaml
                 '''
             }
         }
