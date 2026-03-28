@@ -40,10 +40,7 @@ pipeline {
                 )]) {
                     powershell '''
                     docker logout
-                    $tempFile = Join-Path $env:TEMP "docker_pass.txt"
-                    Set-Content -Path $tempFile -Value $env:DOCKER_PASS -NoNewline
-                    Get-Content $tempFile | docker login -u $env:DOCKER_USER --password-stdin
-                    Remove-Item -Path $tempFile -Force -ErrorAction SilentlyContinue
+                    docker login -u $env:DOCKER_USER -p $env:DOCKER_PASS
                     '''
                 }
             }
