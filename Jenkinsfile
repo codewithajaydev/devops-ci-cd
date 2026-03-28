@@ -63,6 +63,7 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 bat '''
+                set KUBECONFIG=C:\\ProgramData\\minikube_kubeconfig
                 kubectl apply -f deployment.yaml --validate=false
                 kubectl apply -f service.yaml --validate=false
                 '''
