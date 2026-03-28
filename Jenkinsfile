@@ -3,12 +3,12 @@ pipeline {
 
     environment {
         DOCKER_IMAGE = "ajaybecse03/devops-cicd"
-        DOCKER_TAG = "${BUILD_NUMBER}"   // better than latest
+        DOCKER_TAG = "${BUILD_NUMBER}"
     }
 
     tools {
-        maven 'Maven'   // ✅ must match Jenkins tool name
-        jdk '17'        // ✅ optional but recommended
+        maven 'maven'   // must match Jenkins tool name
+        jdk '17'
     }
 
     stages {
@@ -51,7 +51,7 @@ pipeline {
             }
         }
 
-        stage('Update K8s Deployment Image') {
+        stage('Update Deployment Image') {
             steps {
                 sh '''
                 sed -i "s|image: .*|image: $DOCKER_IMAGE:$DOCKER_TAG|g" deployment.yaml
