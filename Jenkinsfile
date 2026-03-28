@@ -40,15 +40,10 @@ pipeline {
                 )]) {
                     powershell '''
                     docker logout
-                    Write-Host "Username: $env:DOCKER_USER"
-                    Write-Host "Testing credentials..."
-                    $env:DOCKER_PASS | docker login -u $env:DOCKER_USER --password-stdin
-                    if ($LASTEXITCODE -eq 0) {
-                        Write-Host "✓ Docker login successful"
-                    } else {
-                        Write-Host "✗ Docker login failed"
-                        exit 1
-                    }
+                    $tempFile = Join-Path $env:TEMP "docker_pass.txt"
+                    Set-Content -Path $tempFile -Value $env:DOCKER_PASS -NoNewline
+                    Get-Content $tempFile | docker login -u $env:DOCKER_USER --password-stdin
+                    Remove-Item -Path $tempFile -Force -ErrorAction SilentlyContinue
                     '''
                 }
             }
