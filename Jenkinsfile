@@ -39,7 +39,16 @@ pipeline {
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
                     powershell '''
+                    docker logout
+                    Write-Host "Username: $env:DOCKER_USER"
+                    Write-Host "Testing credentials..."
                     $env:DOCKER_PASS | docker login -u $env:DOCKER_USER --password-stdin
+                    if ($LASTEXITCODE -eq 0) {
+                        Write-Host "✓ Docker login successful"
+                    } else {
+                        Write-Host "✗ Docker login failed"
+                        exit 1
+                    }
                     '''
                 }
             }
