@@ -14,6 +14,6 @@ spec:
     spec:
       containers:
       - name: devops-app
-        image: ajaybecse03/devops-cicd:latest   # ✅ your DockerHub image
+        image: ajaybecse03/devops-cicd:22   # ✅ your DockerHub image
         ports:
         - containerPort: 8080   # ✅ FIXED
