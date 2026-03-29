@@ -63,7 +63,7 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 bat '''
-                set KUBECONFIG=C:\Users\premb\.kube\config
+                set KUBECONFIG=C:\\Users\\premb\\.kube\\config
                 kubectl apply -f deployment.yaml --validate=false
                 kubectl apply -f service.yaml --validate=false
                 '''
